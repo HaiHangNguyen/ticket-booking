@@ -1,0 +1,162 @@
+<?php
+/** @var \Ticket\Booking\Block\Product\SelectSeats $block */
+$selectedSeats = [];
+$info =  $block->getInfoProduct($block->getProductId());
+$directoryHelper = $this->helper(\Ticket\Directory\Helper\DirectoryHelper::class);
+?>
+<div id="info" style="padding-bottom: 20px;font-size: 17px;">
+    <?= 'Start Location: ' . $directoryHelper->getCityDefaultName($info['start_location']). '<br>' ?>
+    <?= 'End Location: ' . $directoryHelper->getCityDefaultName($info['end_location']). '<br>' ?>
+    <?= 'Time: ' . $info['time']. '<br>' ?>
+    <?= 'Number Plate: ' . $info['number_plate'] ?>
+</div>
+<div style="padding-bottom: 20px;">
+    <label>Date : </label>
+    <input type="text" id="select_date" name="select_date" />
+</div>
+<div style="padding-bottom: 20px;">
+    <button type="button" id="select_seat" >
+        <span>Select Seats</span>
+    </button>
+</div>
+
+<input id="choosed_seats" name="choosed_seats" style="display: none">
+<div id="selected_seats" name="selected_seats" style="display: none"></div>
+
+<div id="plane" class="plane">
+    <?php
+    if(isset($_COOKIE['selected_seat'])) {
+        $selectedSeats =  $_COOKIE['selected_seat'];
+        $selectedSeats = explode(', ', $selectedSeats);
+    } else $selectedSeats = [];
+    ?>
+    <ol class="cabin fuselage">
+        <li class="row row--1">
+            <ol class="seats" type="A">
+                <?php foreach (range(1, 8) as $i): ?>
+                    <?php if(!in_array('A'.$i, $selectedSeats)): ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'A'.$i?> />
+                            <label for= <?= 'A'.$i?> ><?= 'A'.$i?></label>
+                        </li>
+                    <?php else: ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'A'.$i?> disabled="disabled"/>
+                            <label for= <?= 'A'.$i?> ><?= 'A'.$i?></label>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach;?>
+            </ol>
+        </li>
+        <li class="row row--2">
+            <ol class="seats" type="B">
+                <?php foreach (range(1, 8) as $i): ?>
+                    <?php if(!in_array('B'.$i, $selectedSeats)): ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'B'.$i?> />
+                            <label for= <?= 'B'.$i?> ><?= 'B'.$i?></label>
+                        </li>
+                    <?php else: ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'B'.$i?> disabled="disabled"/>
+                            <label for= <?= 'B'.$i?> ><?= 'B'.$i?></label>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </ol>
+        </li>
+        <li class="row row--3">
+            <ol class="seats" type="C">
+                <?php foreach (range(1, 8) as $i): ?>
+                    <?php if(!in_array('C'.$i, $selectedSeats)): ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'C'.$i?> />
+                            <label for= <?= 'C'.$i?> ><?= 'C'.$i?></label>
+                        </li>
+                    <?php else: ?>
+                        <li class="seat">
+                            <input type="checkbox" id=<?= 'C'.$i?> disabled="disabled"/>
+                            <label for= <?= 'C'.$i?> ><?= 'C'.$i?></label>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'Magento_Ui/js/modal/modal',
+        'mage/translate',
+        'mage/calendar'
+    ], function ($, modal, $t) {
+        var choosedSeats = '';
+        var count = 0;
+
+        $('#select_date').calendar({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            currentText: $t('Go Today'),
+            closeText: $t('Close'),
+            format: 'dd/mm/yyyy',
+            showWeek: false,
+            hideIfNoPrevNext: true,
+            minDate: new Date(),
+            maxDate: "+1w"
+        });
+
+        var options = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Select your seats',
+            buttons: [{
+                text: $.mage.__('Continue'),
+                class: '',
+                click: function () {
+                    for(var i=1; i<=8; i++) {
+                        if($("#A"+i).is(':checked')) {
+                            choosedSeats = choosedSeats + 'A' + i + ', ';
+                            count++;
+                        }
+                        if($("#B"+i).is(':checked')) {
+                            choosedSeats = choosedSeats + 'B' + i + ', ';
+                            count++;
+                        }
+                        if($("#C"+i).is(':checked')) {
+                            choosedSeats = choosedSeats + 'C' + i + ', ';
+                            count++;
+                        }
+                    }
+                    $("#qty").val(count);
+                    choosedSeats = choosedSeats.substr(0, choosedSeats.length - 2);
+                    $("#choosed_seats").val(choosedSeats);
+                    choosedSeats = '';
+                    count = 0;
+                    this.closeModal();
+                }
+            }]
+        };
+        var popup = modal(options, $('.plane'));
+        $('#select_seat').click(function () {
+            $.ajax({
+                url: 'ticket/booking/ajax',
+                data: {
+                    productId: <?= $block->getProductId()?>,
+                    date: document.getElementById("select_date").value
+                },
+                type: "POST",
+                dataType: 'json'
+            }).done(function (data) {
+                document.cookie = "selected_seat=" + data;
+                $( "#plane" ).load(window.location.href + " #plane" );
+                $('.plane').modal('openModal');
+
+            });
+        });})
+</script>
+
+

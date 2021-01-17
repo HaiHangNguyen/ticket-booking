@@ -1,0 +1,139 @@
+<?php
+$productInfo = $block->getProductInfo();
+$directoryHelper = $this->helper(\Ticket\Directory\Helper\DirectoryHelper::class);
+?>
+
+<style>
+    table {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        text-align: center;
+    }
+
+    #product_info {
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div id="product_info">
+    - Name: <?= $productInfo['name'].'<br>' ?>
+    - Start Location: <?= $directoryHelper->getCityDefaultName($productInfo['start_location']).' | ' ?> End Location: <?= $directoryHelper->getCityDefaultName($productInfo['end_location']).'<br>' ?>
+    - Time: <?= $productInfo['time'].'<br>' ?>
+    - Number Plate: <?= $productInfo['number_plate'].'<br>' ?>
+    - Info: <?= $productInfo['info'].'<br>' ?>
+</div>
+<div style="text-align: center">
+    <label>Date : </label>
+    <input type="date" id="select_day" name="select_day" />
+</div>
+<div style="text-align: center; padding-top: 20px;">
+    <button type="button" id="show_info" >
+        <span>Show Info</span>
+    </button>
+</div>
+<div id="info_seat">
+    <?php
+    if(isset($_COOKIE['booking_item_id'])) {
+        $bookingItemId =  $_COOKIE['booking_item_id'];
+    } else $bookingItemId = null;
+    $seatInfo = $block->getSeatInfo($bookingItemId);
+    ?>
+    <?php if($seatInfo):?>
+        <table id="seat_info">
+            <tr>
+                <?php foreach (range(1, 8) as $i): ?>
+                    <th id=<?= 'A' . $i ?> >
+                        <?= 'A' . $i ?>
+                        <?php foreach ($seatInfo as $key => $seat){
+                            if (in_array('A' . $i, $seat))
+                                echo '<br>'.$key;
+                        }
+                        ?>
+                    </th>
+                <?php endforeach; ?>
+            </tr>
+            <tr>
+                <?php foreach (range(1, 8) as $i): ?>
+                    <th id=<?= 'B' . $i ?> >
+                        <?= 'B' . $i ?>
+                        <?php foreach ($seatInfo as $key => $seat){
+                            if (in_array('B' . $i, $seat))
+                                echo '<br>'.$key;
+                        }
+                        ?>
+                    </th>
+                <?php endforeach; ?>
+            </tr>
+            <tr>
+                <?php foreach (range(1, 8) as $i): ?>
+                    <th id=<?= 'C' . $i ?> >
+                        <?= 'C' . $i ?>
+                        <?php foreach ($seatInfo as $key => $seat){
+                            if (in_array('C' . $i, $seat))
+                                echo '<br>'.$key;
+                        }
+                        ?>
+                    </th>
+                <?php endforeach; ?>
+            </tr>
+        </table>
+    <?php else: ?>
+        No information in this day.
+    <?php endif;?>
+</div>
+
+<script>
+    require([
+        'jquery',
+        'Magento_Ui/js/modal/modal',
+        'mage/translate',
+        'mage/calendar'
+    ], function ($, modal, $t) {
+        var options = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Seat Information',
+            buttons: [{
+                text: $.mage.__('Continue'),
+                class: '',
+                click: function () {
+                    this.closeModal();
+                }
+            }]
+        };
+        var popup = modal(options, $('#info_seat'));
+
+        $('#show_info').click(function () {
+            $.ajax({
+                url: "<?= $block->getUrl('ticket/booking/ajax')?>",
+                data: {
+                    productId: <?= $productInfo['product_id']?>,
+                    date: document.getElementById("select_day").value
+                },
+                type: "POST",
+                dataType: 'json'
+            }).done(function (data) {
+                document.cookie = "booking_item_id=" + data;
+                $( "#info_seat" ).load(window.location.href + " #info_seat" );
+                $('#info_seat').modal('openModal');
+            });
+        });
+    })
+</script>
+
+
+

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Ticket_Directory::menu" title="Directory" module="Ticket_Directory" sortOrder="90" resource="Ticket_Directory::menu" parent="Magento_Backend::stores"/>
+        <add id="Ticket_Directory::city" title="Manage Cities" module="Ticket_Directory" sortOrder="10" parent="Ticket_Directory::menu" action="directory/city/index" resource="Ticket_Directory::city"/>
+        <add id="Ticket_Directory::district" title="Manage Districts" module="Ticket_Directory" sortOrder="20" parent="Ticket_Directory::menu" action="directory/district/index" resource="Ticket_Directory::district"/>
+        <add id="Ticket_Directory::ward" title="Manage Wards" module="Ticket_Directory" sortOrder="30" parent="Ticket_Directory::menu" action="directory/ward/index" resource="Ticket_Directory::ward"/>
+    </menu>
+</config>

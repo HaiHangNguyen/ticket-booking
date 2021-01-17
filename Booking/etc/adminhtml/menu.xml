@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Ticket_Booking::ticket_booking"
+             title="Ticket Booking" module="Ticket_Booking"
+             sortOrder="30" resource="Ticket_Booking::ticket_booking"/>
+
+        <add id="Ticket_Booking::ticket_booking_product" title="Ticket Booking Product"
+             module="Ticket_Booking"
+             sortOrder="20"
+             action="ticket/booking/"
+             resource="Ticket_Booking::ticket_booking_product"
+             parent="Ticket_Booking::ticket_booking"/>
+
+        <add id="Ticket_Booking::ticket_booking_orders" title="Ticket Booking Orders"
+             module="Ticket_Booking"
+             sortOrder="30"
+             action="ticket/orders/"
+             resource="Ticket_Booking::ticket_booking_orders"
+             parent="Ticket_Booking::ticket_booking"/>
+    </menu>
+</config>
