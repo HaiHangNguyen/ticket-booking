@@ -12,7 +12,7 @@ $directoryHelper = $this->helper(\Ticket\Directory\Helper\DirectoryHelper::class
 </div>
 <div style="padding-bottom: 20px;">
     <label>Date : </label>
-    <input type="text" id="select_date" name="select_date" />
+    <input type="text" id="select_date" name="select_date" required/>
 </div>
 <div style="padding-bottom: 20px;">
     <button type="button" id="select_seat" >
@@ -20,7 +20,7 @@ $directoryHelper = $this->helper(\Ticket\Directory\Helper\DirectoryHelper::class
     </button>
 </div>
 
-<input id="choosed_seats" name="choosed_seats" style="display: none">
+<input id="choosed_seats" name="choosed_seats" style="display: none" required>
 <div id="selected_seats" name="selected_seats" style="display: none"></div>
 
 <div id="plane" class="plane">
@@ -142,21 +142,25 @@ $directoryHelper = $this->helper(\Ticket\Directory\Helper\DirectoryHelper::class
         };
         var popup = modal(options, $('.plane'));
         $('#select_seat').click(function () {
-            $.ajax({
-                url: 'ticket/booking/ajax',
-                data: {
-                    productId: <?= $block->getProductId()?>,
-                    date: document.getElementById("select_date").value
-                },
-                type: "POST",
-                dataType: 'json'
-            }).done(function (data) {
-                document.cookie = "selected_seat=" + data;
-                $( "#plane" ).load(window.location.href + " #plane" );
-                $('.plane').modal('openModal');
+            if (document.getElementById("select_date").value != null ) {
+                console.log(document.getElementById("select_date").value);
+                $.ajax({
+                    url: 'ticket/booking/ajax',
+                    data: {
+                        productId: <?= $block->getProductId()?>,
+                        date: document.getElementById("select_date").value
+                    },
+                    type: "POST",
+                    dataType: 'json'
+                }).done(function (data) {
+                    document.cookie = "selected_seat=" + data;
+                    $( "#plane" ).load(window.location.href + " #plane" );
+                    $('.plane').modal('openModal');
 
-            });
-        });})
+                });
+            }
+        });
+    })
 </script>
 
 
